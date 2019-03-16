@@ -13,6 +13,7 @@ import os
 import re
 import random
 import torch
+import json
 from Dataloader.Instance import Instance
 
 from DataUtils.Common import *
@@ -94,6 +95,13 @@ class DataLoader(DataLoaderHelp):
         self.path = path
         self.shuffle = shuffle
 
+        # BERT
+        self.bert_path = [config.bert_train_file,
+                          config.bert_dev_file,
+                          config.bert_test_file]
+
+        self.use_bert = config.use_bert
+
     def dataLoader(self):
         """
         :return:
@@ -104,7 +112,7 @@ class DataLoader(DataLoaderHelp):
         print("Data Path {}".format(path))
         for id_data in range(len(path)):
             print("Loading Data Form {}".format(path[id_data]))
-            insts = self._Load_Each_Data(path=path[id_data], shuffle=shuffle)
+            insts = self._Load_Each_Data(path=path[id_data], path_id=id_data)
             print("shuffle train data......")
             random.shuffle(insts)
             self.data_list.append(insts)
@@ -114,7 +122,7 @@ class DataLoader(DataLoaderHelp):
         elif len(self.data_list) == 2:
             return self.data_list[0], self.data_list[1]
 
-    def _Load_Each_Data(self, path=None, shuffle=False):
+    def _Load_Each_Data(self, path=None, path_id=None):
         """
         :param path:
         :param shuffle:
@@ -148,6 +156,28 @@ class DataLoader(DataLoaderHelp):
                 if len(insts) == self.max_count:
                     break
             # print("\n")
+        if self.use_bert:
+            insts = self._read_bert_file(insts, path=self.bert_path[path_id])
+        return insts
+
+    def _read_bert_file(self, insts, path):
+        """
+        :param insts:
+        :param path:
+        :return:
+        """
+        print("\nRead BERT Features File From {}".format(path))
+        now_lines = 0
+        with open(path, encoding="utf-8") as f:
+            for inst, bert_line in zip(insts, f.readlines()):
+                now_lines += 1
+                if now_lines % 2000 == 0:
+                    sys.stdout.write("\rreading the {} line\t".format(now_lines))
+                bert_fea = json.loads(bert_line)
+                inst.bert_tokens = bert_fea["features"]["tokens"]
+                inst.bert_feature = bert_fea["features"]["values"]
+                # print(inst.bert_feature)
+            sys.stdout.write("\rReading the {} line\t".format(now_lines))
         return insts
 
 

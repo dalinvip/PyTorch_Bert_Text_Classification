@@ -28,6 +28,7 @@ class Batch_Features:
         self.batch_length = 0
         self.inst = None
         self.word_features = None
+        self.bert_features = None
         self.label_features = None
         self.sentence_length = []
 
@@ -39,6 +40,7 @@ class Batch_Features:
         :return:
         """
         features.word_features = features.word_features.to(device)
+        # features.bert_features = features.bert_features.to(device)
         features.label_features = features.label_features.to(device)
 
 
@@ -131,6 +133,7 @@ class Iterators:
         batch_length = len(insts)
         # copy with the max length for padding
         max_word_size = -1
+        max_bert_tokens_size = -1
         sentence_length = []
         for inst in insts:
             sentence_length.append(inst.words_size)
@@ -138,12 +141,15 @@ class Iterators:
             if word_size > max_word_size:
                 max_word_size = word_size
 
+            bert_token_size = len(inst.bert_tokens)
+            if bert_token_size > max_bert_tokens_size:
+                max_bert_tokens_size = bert_token_size
+
         # create with the Tensor/Variable
         # word/label features
-        # batch_word_features = Variable(torch.zeros(batch_length, max_word_size).type(torch.LongTensor))
-        # batch_label_features = Variable(torch.zeros(batch_length * 1).type(torch.LongTensor))
-
+        bert_dim = self.config.bert_dim
         batch_word_features = np.zeros((batch_length, max_word_size))
+        batch_bert_features = np.zeros((batch_length, max_bert_tokens_size, bert_dim))
         batch_label_features = np.zeros((batch_length * 1))
 
         for id_inst in range(batch_length):
@@ -154,6 +160,8 @@ class Iterators:
                     batch_word_features[id_inst][id_word_index] = inst.words_index[id_word_index]
                 else:
                     batch_word_features[id_inst][id_word_index] = alphabet.word_paddingId
+            length = len(inst.bert_tokens)
+            batch_bert_features[id_inst][:length] = np.array(inst.bert_feature)
 
             # label
             batch_label_features[id_inst] = inst.label_index[0]
@@ -167,8 +175,14 @@ class Iterators:
         features.inst = insts
         features.batch_length = batch_length
         features.word_features = batch_word_features
+        features.bert_features = batch_bert_features
         features.label_features = batch_label_features
         features.sentence_length = sentence_length
+
+        if self.config.use_bert:
+            batch_bert_features = torch.from_numpy(batch_bert_features).float()
+            features.bert_features = batch_bert_features
+            features.bert_features.to(self.device)
 
         if self.config.device != cpu_device:
             features.cuda(features, self.device)

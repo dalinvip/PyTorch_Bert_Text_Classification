@@ -40,11 +40,13 @@ class Embed(object):
         # print(self.words_dict)
         self.dim, self.words_count = self._get_dim(path=self.path), len(self.words_dict)
         self.exact_count, self.fuzzy_count, self.oov_count = 0, 0, 0
+        self.use_time = 0
 
     def get_embed(self):
         """
         :return:
         """
+        start_time = time.time()
         embed_dict = None
         if self.embed_type in self.embed_type_enum:
             embed_dict = self._read_file(path=self.path)
@@ -62,6 +64,8 @@ class Embed(object):
         elif self.embed_type == "avg":
             embed = self._avg_embed(embed_dict=embed_dict, words_dict=self.words_dict)
         # print(embed)
+        end_time = time.time()
+        self.use_time = end_time - start_time
         self.info()
         return embed
 
@@ -91,7 +95,7 @@ class Embed(object):
         """
         print("loading pre_train embedding by nn.Embedding for out of vocabulary.")
         embed = nn.Embedding(int(self.words_count), int(self.dim))
-        init.xavier_uniform(embed.weight.data)
+        init.xavier_uniform_(embed.weight.data)
         embeddings = np.array(embed.weight.data)
         for word in words_dict:
             if word in embed_dict:
@@ -102,6 +106,7 @@ class Embed(object):
                 self.fuzzy_count += 1
             else:
                 self.oov_count += 1
+        embeddings[self.padID] = 0
         final_embed = torch.from_numpy(embeddings).float()
         return final_embed
 
@@ -185,7 +190,8 @@ class Embed(object):
         print("Fuzzy count {} / {}".format(self.fuzzy_count, self.words_count))
         print("  INV count {} / {}".format(total_count, self.words_count))
         print("  OOV count {} / {}".format(self.oov_count, self.words_count))
-        print("  OOV radio ===> {}%".format(np.round((self.oov_count / total_count) * 100, 2)))
+        print("  OOV radio ===> {}%".format(np.round((self.oov_count / self.words_count) * 100, 2)))
+        print("Pre-Train Embed Time {:.4f}".format(self.use_time))
         print(40 * "*")
 
     @staticmethod

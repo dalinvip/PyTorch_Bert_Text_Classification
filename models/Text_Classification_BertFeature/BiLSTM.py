@@ -47,15 +47,16 @@ class BiLSTM(nn.Module):
         self.bilstm = nn.LSTM(input_size=D, hidden_size=self.lstm_hiddens, num_layers=self.lstm_layers,
                               bidirectional=True, batch_first=True, bias=True)
 
-        self.linear = nn.Linear(in_features=self.lstm_hiddens * 2, out_features=C, bias=True)
+        self.linear = nn.Linear(in_features=self.lstm_hiddens * 2 + self.bert_out_dim,
+                                out_features=C, bias=True)
         # init_linear_weight_bias(self.linear)
         init_linear(self.linear)
 
-    def forward(self, word, sentence_length):
+    def forward(self, word, bert_fea, sentence_length):
         """
         :param word:
+        :param bert_fea:
         :param sentence_length:
-        :param desorted_indices:
         :return:
         """
         word, sentence_length, desorted_indices = prepare_pack_padded_sequence(word, sentence_length, device=self.device)
@@ -68,6 +69,7 @@ class BiLSTM(nn.Module):
         x = x.permute(0, 2, 1)
         x = self.dropout(x)
         x = F.max_pool1d(x, x.size(2)).squeeze(2)
+        x = torch.cat((x, bert_fea), 1)
         x = torch.tanh(x)
         logit = self.linear(x)
         return logit

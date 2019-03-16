@@ -12,20 +12,21 @@
 import torch
 import torch.nn as nn
 import random
-from models.Text_Classification.BiLSTM import BiLSTM
+from models.Text_Classification_BertFeature.BiLSTM import BiLSTM
+from models.Text_Classification_BertFeature.Bert_Encoder import Bert_Encoder
 from models.Text_Classification.CNN import CNN
 from DataUtils.Common import *
 torch.manual_seed(seed_num)
 random.seed(seed_num)
 
 
-class Text_Classification(nn.Module):
+class Text_Classification_BertFeature(nn.Module):
     """
         Text_Classification
     """
 
     def __init__(self, config):
-        super(Text_Classification, self).__init__()
+        super(Text_Classification_BertFeature, self).__init__()
         self.config = config
         # embed
         self.embed_num = config.embed_num
@@ -48,19 +49,16 @@ class Text_Classification(nn.Module):
         # self.use_cuda = config.use_cuda
         self.device = config.device
 
-        if self.config.model_bilstm:
-            self.model = BiLSTM(embed_num=self.embed_num, embed_dim=self.embed_dim, label_num=self.label_num,
-                                paddingId=self.paddingId, dropout_emb=self.dropout_emb, dropout=self.dropout,
-                                lstm_hiddens=self.lstm_hiddens, lstm_layers=self.lstm_layers,
-                                pretrained_embed=self.pretrained_embed, pretrained_weight=self.pretrained_weight,
-                                device=self.device)
-        elif self.config.model_cnn:
-            self.model = CNN(embed_num=self.embed_num, embed_dim=self.embed_dim, label_num=self.label_num,
-                             paddingId=self.paddingId, dropout_emb=self.dropout_emb, dropout=self.dropout,
-                             conv_filter_nums=self.conv_filter_nums, conv_filter_sizes=self.conv_filter_sizes,
-                             wide_conv=self.wide_conv,
-                             pretrained_embed=self.pretrained_embed, pretrained_weight=self.pretrained_weight,
-                             device=self.device)
+        self.bert_out_dim = 200
+
+        self.model = BiLSTM(embed_num=self.embed_num, embed_dim=self.embed_dim, label_num=self.label_num,
+                            paddingId=self.paddingId, dropout_emb=self.dropout_emb, dropout=self.dropout,
+                            lstm_hiddens=self.lstm_hiddens, lstm_layers=self.lstm_layers,
+                            pretrained_embed=self.pretrained_embed, pretrained_weight=self.pretrained_weight,
+                            device=self.device, bert_out_dim=self.bert_out_dim)
+
+        self.Bert_Encoder = Bert_Encoder(dropout=0.5, bert_dim=config.bert_dim,
+                                         out_dim=self.bert_out_dim, device=self.device)
 
     @staticmethod
     def _conv_filter(str_list):
@@ -95,7 +93,8 @@ class Text_Classification(nn.Module):
         :return:
         """
         word, bert_feature, mask, sentence_length, labels, batch_size = self._get_model_args(batch_features)
-        model_output = self.model(word, sentence_length)
+        bert_fea = self.Bert_Encoder(bert_feature)
+        model_output = self.model(word, bert_fea, sentence_length)
         return model_output
 
 

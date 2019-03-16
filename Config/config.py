@@ -95,6 +95,72 @@ class Configurable(myconf):
     def epochs_shuffle(self):
         return self._config.getboolean('Data', 'epochs_shuffle')
 
+    # Bert
+    @property
+    def use_bert(self):
+        return self._config.getboolean('Bert', 'use_bert')
+
+    @property
+    def bert_dim(self):
+        return self._config.getint('Bert', 'bert_dim')
+
+    @property
+    def bert_train_file(self):
+        return self._config.get('Bert', 'bert_train_file')
+
+    @property
+    def bert_dev_file(self):
+        return self._config.get('Bert', 'bert_dev_file')
+
+    @property
+    def bert_test_file(self):
+        return self._config.get('Bert', 'bert_test_file')
+
+    # BertModel
+    @property
+    def use_bert_model(self):
+        return self._config.getboolean('BertModel', 'use_bert_model')
+
+    @property
+    def bert_model_path(self):
+        return self._config.get('BertModel', 'bert_model_path')
+
+    @property
+    def bert_model_vocab(self):
+        return self._config.get('BertModel', 'bert_model_vocab')
+
+    @property
+    def bert_max_char_length(self):
+        return self._config.getint('BertModel', 'bert_max_char_length')
+
+    @property
+    def bert_model_max_seq_length(self):
+        return self._config.getint('BertModel', 'bert_model_max_seq_length')
+
+    @property
+    def bert_model_batch_size(self):
+        return self._config.getint('BertModel', 'bert_model_batch_size')
+
+    @property
+    def extract_dim(self):
+        return self._config.getint('BertModel', 'extract_dim')
+
+    @property
+    def layers(self):
+        return self._config.get('BertModel', 'layers')
+
+    @property
+    def local_rank(self):
+        return self._config.getint('BertModel', 'local_rank')
+
+    @property
+    def no_cuda(self):
+        return self._config.getboolean('BertModel', 'no_cuda')
+
+    @property
+    def do_lower_case(self):
+        return self._config.getboolean('BertModel', 'do_lower_case')
+
     # Save
     @property
     def save_pkl(self):

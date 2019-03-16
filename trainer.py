@@ -56,6 +56,7 @@ class Train(object):
         print(self.loss_function)
         self.best_score = Best_Result()
         self.train_iter_len = len(self.train_iter)
+        self.train_iter_len = len(self.train_iter)
 
     @staticmethod
     def _loss(learning_algorithm):
@@ -139,7 +140,8 @@ class Train(object):
         sentence_length = batch_features.sentence_length
         labels = batch_features.label_features
         batch_size = batch_features.batch_length
-        return word, mask, sentence_length, labels, batch_size
+        bert_feature = batch_features.bert_features
+        return word, bert_feature, mask, sentence_length, labels, batch_size
 
     def _calculate_loss(self, feats, labels):
         """
@@ -173,8 +175,9 @@ class Train(object):
             for batch_count, batch_features in enumerate(self.train_iter):
                 backward_count += 1
                 # self.optimizer.zero_grad()
-                word, mask, sentence_length, labels, batch_size = self._get_model_args(batch_features)
-                logit = self.model(word, sentence_length, train=True)
+                batch_size = batch_features.batch_length
+                labels = batch_features.label_features
+                logit = self.model(batch_features, train=True)
                 loss = self._calculate_loss(logit, labels)
                 loss.backward()
                 self._clip_model_norm(clip_max_norm_use, clip_max_norm)
@@ -184,7 +187,8 @@ class Train(object):
                 if (steps - 1) % self.config.log_interval == 0:
                     accuracy = self.getAcc(logit, labels, batch_size)
                     sys.stdout.write(
-                        "\nbatch_count = [{}] , loss is {:.6f}, [accuracy is {:.6f}%]".format(batch_count + 1, loss.item(), accuracy))
+                        "\nbatch_count = [{}/{}] , loss is {:.6f}, [accuracy is {:.6f}%]".format(
+                            batch_count + 1, self.train_iter_len, loss.item(), accuracy))
             end_time = time.time()
             print("\nTrain Time {:.3f}".format(end_time - start_time), end="")
             self.eval(model=self.model, epoch=epoch, config=self.config)
@@ -237,9 +241,11 @@ class Train(object):
         corrects = 0
         size = 0
         for batch_features in data_iter:
-            word, mask, sentence_length, labels, batch_size = self._get_model_args(batch_features)
-            logit = self.model(word, sentence_length, train=False)
-            size += batch_features.batch_length
+            # word, mask, sentence_length, labels, batch_size = self._get_model_args(batch_features)
+            batch_size = batch_features.batch_length
+            labels = batch_features.label_features
+            logit = self.model(batch_features, train=False)
+            size += batch_size
             corrects += (torch.max(logit, 1)[1].view(labels.size()).data == labels.data).sum()
 
         assert size is not 0, print("Error")

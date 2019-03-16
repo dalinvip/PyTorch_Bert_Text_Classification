@@ -30,4 +30,7 @@ class Instance:
         self.words_index = []
         self.label_index = []
 
+        self.bert_tokens = []
+        self.bert_feature = None
+
 

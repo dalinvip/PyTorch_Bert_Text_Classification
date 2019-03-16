@@ -16,6 +16,7 @@ from DataUtils.Batch_Iterator import *
 from DataUtils.Embed import Embed
 from Dataloader.DataLoader_SST_Binary import DataLoader
 from models.Text_Classification.Text_Classification import Text_Classification
+from models.Text_Classification_BertFeature.Text_Classification import Text_Classification_BertFeature
 from test import load_test_model
 
 # solve default encoding problem
@@ -178,7 +179,10 @@ def load_model(config):
     :return:  nn model
     """
     print("***************************************")
-    model = Text_Classification(config)
+    if config.use_bert:
+        model = Text_Classification_BertFeature(config)
+    else:
+        model = Text_Classification(config)
     if config.device != cpu_device:
         model = model.to(config.device)
     if config.test is True:
