@@ -15,6 +15,11 @@ modify the config file, see the Config directory.
 	2、python -u main.py --config ./Config/config.cfg --device cuda:0 --train -p
 
 
+
+## Bert ##
+
+- use [Bert_Script](https://github.com/bamtercelboo/PyTorch_Bert_Text_Classification/tree/master/Bert_Script) to extract feature from **bert-base-uncased** bert model.
+
 ## Model ##
 
 - CNN
@@ -27,14 +32,22 @@ modify the config file, see the Config directory.
 - SST-Binary
 
 ## Result ##
+The following test set accuracy are based on the best dev set accuracy.    
 
+| Model |Bert-Encoder |% SST-Binary |  
+| ------------ | ------------ |  ------------ |  
+| Bi-LSTM | - |  86.4360 |  
+| Bi-LSTM | AvgPooling |  86.3811 |    
+| Bi-LSTM | MaxPooling |  86.9303 |  
+| Bi-LSTM | BiLSTM+MaxPool |  89.7309 |  
 
 ## Reference ##
 
 - [cnn-lstm-bilstm-deepcnn-clstm-in-pytorch](https://github.com/bamtercelboo/cnn-lstm-bilstm-deepcnn-clstm-in-pytorch)
-- [基于pytorch的CNN-LSTM神经网络模型调参小结](http://www.cnblogs.com/bamtercelboo/p/7469005.html "基于pytorch的CNN-LSTM神经网络模型调参小结")
-- [Convolutional Neural Networks for Sentence Classification](https://arxiv.org/pdf/1408.5882.pdf)
-- [Context-Sensitive Lexicon Features for Neural Sentiment Analysis](https://arxiv.org/pdf/1408.5882.pdf)
+
+- https://github.com/huggingface/pytorch-pretrained-BERT  
+
+- https://github.com/google-research/bert  
 
 ## Question ##
 
