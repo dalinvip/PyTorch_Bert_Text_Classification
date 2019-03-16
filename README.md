@@ -9,30 +9,24 @@
 
 ## Usage ##
  
-modify the config file, see the Config directory([here](https://github.com/bamtercelboo/pytorch_text_classification/tree/master/Config)) for detail.  
+modify the config file, see the Config directory.
 
-	1、python main.py
-	2、python main.py --config_file ./Config/config.cfg --train -p
+	1、sh run_train_p.sh
+	2、python -u main.py --config ./Config/config.cfg --device cuda:0 --train -p
 
 
 ## Model ##
 
 - CNN
 - BiLSTM
-- Updating Bert 
+- BiLSTM + BertFeature
+- updating 
 
 ## Data ##
 
 - SST-Binary
 
 ## Result ##
-
-The following test set accuracy are based on the best dev set accuracy.    
-
-| Data/Model | % SST-Binary |  
-| ------------ | ------------ |  
-| CNN | 84.23 |  
-| Bi-LSTM | 86.27 |  
 
 
 ## Reference ##
