@@ -1,11 +1,11 @@
-# pytorch_text_classification
-- A classification task implement in pytorch for my own architecture.
+# PyTorch_Bert_Text_Classification
+- Bert For Text Classification in SST  
 
 ## Requirement ##
 
-	pyorch : 0.3.1
-	python : 3.6
-	cuda : 8.0/9.0 (support cuda speed up, can chose)
+	PyTorch : 1.0.1
+	Python : 3.6
+	Cuda : 9.0 (support cuda speed up, can chose)
 
 ## Usage ##
  
@@ -19,7 +19,7 @@ modify the config file, see the Config directory([here](https://github.com/bamte
 
 - CNN
 - BiLSTM
-- Updating
+- Updating Bert 
 
 ## Data ##
 
@@ -44,6 +44,6 @@ The following test set accuracy are based on the best dev set accuracy.
 
 ## Question ##
 
-- if you have any question, you can open a issue or email `bamtercelboo@{gmail.com, 163.com}`.
+- if you have any question, you can open a issue or email **bamtercelboo@{gmail.com, 163.com}**.
 
 - if you have any good suggestions, you can PR or email me.
