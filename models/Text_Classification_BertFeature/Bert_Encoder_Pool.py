@@ -30,11 +30,7 @@ class Bert_Encoder(nn.Module):
             self.__setattr__(k, kwargs[k])
 
         self.dropout_bert = nn.Dropout(self.dropout)
-
-        self.bert_bilstm = nn.LSTM(input_size=self.bert_dim, hidden_size=200,
-                                   bidirectional=True, batch_first=True, bias=True)
-
-        self.bert_linear = nn.Linear(in_features=200 * 2, out_features=self.out_dim,
+        self.bert_linear = nn.Linear(in_features=self.bert_dim, out_features=self.out_dim,
                                      bias=True)
         init_linear_weight_bias(self.bert_linear)
 
@@ -44,9 +40,9 @@ class Bert_Encoder(nn.Module):
         :return:
         """
         bert_fea = bert_fea.to(self.device)
-        bert_fea, _ = self.bert_bilstm(bert_fea)
         bert_fea = bert_fea.permute(0, 2, 1)
         bert_fea = F.max_pool1d(bert_fea, bert_fea.size(2)).squeeze(2)
+        # bert_fea = F.avg_pool1d(bert_fea, bert_fea.size(2)).squeeze(2)
         bert_fea = self.bert_linear(bert_fea)
         return bert_fea
 
